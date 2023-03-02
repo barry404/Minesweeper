@@ -1,17 +1,21 @@
+#[cfg(not(target_family = "wasm"))]
 use rand::{thread_rng, Rng};
+use wasm_bindgen::prelude::*;
 
+#[cfg(not(target_family = "wasm"))]
 pub fn random_range(min: usize, max: usize) -> usize {
-    let mut rng = thread_rng();
+  let mut rng = thread_rng();
 
-    // Exclusive range
-    rng.gen_range(min..max)
+  rng.gen_range(min..max)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::random_range;
-    #[test]
-    fn it_works() {
-        println!("{}", random_range(0, 10));
-    }
+#[wasm_bindgen]
+extern "C" {
+  #[wasm_bindgen(js_namespace = Math)]
+  fn random() -> f64;
+}
+
+#[cfg(target_family = "wasm")]
+pub fn random_range(min: usize, max: usize) -> usize {
+  (random() * (max - min) as f64).floor() as usize + min
 }
